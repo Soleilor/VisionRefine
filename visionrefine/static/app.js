@@ -149,7 +149,6 @@ async function deleteProject(project) {
 
 function confirmLeavingSegmentation() {
   return $("annotationWorkspace").hidden || confirmImageChange();
-  return !Segmentation.active() || $("annotationWorkspace").hidden || !Segmentation.dirty() || confirm("当前实例分割有未保存的修改，确定放弃并离开吗？");
 }
 
 function showCreate(force = false) {
@@ -177,7 +176,6 @@ async function showProject(id) {
     return;
   }
   resetImageBrowsers();
-  current = project;
   current = await api(`/api/projects/${id}`);
   $("annotationWorkspace").hidden = true;
   $("exportStatus").textContent = "";
@@ -224,10 +222,6 @@ function renderAnalysis() {
   const max = Math.max(...Object.values(a.routes), 1);
   $("routeBars").innerHTML = Object.entries(a.routes).map(([name, count]) => `
     <div class="route-row"><span>${routeNames[name] || name}</span><div class="bar-track"><div class="bar-fill" style="width:${count / max * 100}%"></div></div><strong>${count}</strong></div>
-  `).join("");
-
-  $("imageRows").innerHTML = a.images.map(row => `
-    <tr><td title="${escapeHtml(row.path)}">${escapeHtml(row.path)}</td><td>${row.width} × ${row.height}</td><td>${row.megapixels}</td><td><span class="strategy">${routeNames[row.route.strategy] || row.route.strategy}${row.route.estimated_tiles > 1 ? ` · ${row.route.estimated_tiles}片` : ""}</span></td></tr>
   `).join("");
 
   const steps = current.task === "instance_segmentation" ? [
@@ -427,7 +421,6 @@ async function openAnnotationWorkspace() {
   Segmentation.configure();
   const panel = $("annotationWorkspace");
   if (!panel.hidden) { panel.scrollIntoView({behavior: "smooth"}); return; }
-  if (Segmentation.active() && !panel.hidden) { panel.scrollIntoView({behavior: "smooth"}); return; }
   panel.hidden = false;
   $("workspaceStatus").textContent = "正在载入图像列表…";
   $("workspaceLabel").innerHTML = (current.labels?.length ? current.labels : ["person"]).map(label => `<option value="${escapeHtml(label)}">${escapeHtml(label)}</option>`).join("");
@@ -503,29 +496,6 @@ async function loadEditorImage(path, meta = editor.images.find(row => row.path =
     }
     return false;
   } finally { if (active()) setEditorLoading(false); }
-async function loadEditorImage(path) {
-  Segmentation.reset();
-  closeBoxLabelPanel();
-  editor.image = path;
-  editor.meta = editor.images.find(row => row.path === path);
-  editor.selected = -1;
-  editor.interaction = null;
-  editor.dirty = false;
-  editor.cropView = null;
-  setEditorTool("draw");
-  editor.view.width = editor.meta.width;
-  editor.view.height = editor.meta.height;
-  editor.view.x = 0;
-  editor.view.y = 0;
-  $("workspaceStatus").textContent = "正在加载标注…";
-  const annotation = await api(`/api/projects/${current.id}/annotations?image=${encodeURIComponent(path)}`);
-  editor.objects = annotation.objects || [];
-  editor.annotationStatus = annotation.status;
-  Segmentation.sync();
-  editor.thumbnail.onload = () => refreshEditorCrop();
-  editor.thumbnail.src = `/api/projects/${current.id}/thumbnail/${encodedPath(path)}?v=${Date.now()}`;
-  $("workspaceStatus").textContent = `${annotation.status} · ${editor.objects.length} ${Segmentation.active() ? "个实例" : "个框"}`;
-  updateDeleteButton();
 }
 
 function clampEditorView() {
@@ -1054,7 +1024,6 @@ document.addEventListener("keyup", event => { if (event.code === "Space") editor
 $("workspaceImage").onchange = async event => {
   const nextImage = event.target.value;
   if (!confirmImageChange()) {
-  if ((editor.dirty || (Segmentation.active() && Segmentation.dirty())) && !confirm("当前图像有未保存的修改，确定切换图像并放弃这些修改吗？")) {
     event.target.value = editor.image;
     return;
   }
@@ -1067,7 +1036,6 @@ window.addEventListener("beforeunload", event => {
 });
 $("saveAnnotations").onclick = async () => {
   if (!current || !editor.image || editor.loading) return;
-  if (!current || !editor.image) return;
   if (Segmentation.active() && !Segmentation.canSave()) return;
   const projectId = current.id, image = editor.image;
   const submitted = JSON.stringify(editor.objects), segmentation = Segmentation.active();

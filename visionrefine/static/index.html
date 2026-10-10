@@ -4,14 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>VisionRefine</title>
-  <link rel="stylesheet" href="/assets/styles.css?v=segmentation-2">
+  <link rel="stylesheet" href="/assets/styles.css?v=workspace-layout-3">
+  <link rel="stylesheet" href="/assets/workspace-shell.css?v=1">
 </head>
-<body>
+<body class="image-workspace-page">
   <div class="app-shell">
     <aside class="sidebar">
-      <div class="brand"><span class="brand-mark">VR</span><span>VisionRefine</span></div>
+      <a class="brand shell-brand" href="/" aria-label="VisionRefine 首页"><span class="brand-mark">VR</span><span>VisionRefine</span></a>
+      <div class="workspace-switch" aria-label="切换工作台">
+        <span class="active" aria-current="page">图片工作台</span>
+        <a href="/video">视频工作台</a>
+      </div>
       <button class="primary full" id="newProject">＋ 新建项目</button>
-      <a class="video-workspace-link" href="/video">视频标注工作台 →</a>
       <nav aria-label="项目列表">
         <div class="nav-label">项目</div>
         <div id="projectList" class="project-list"></div>
@@ -22,6 +26,7 @@
     <main>
       <header class="topbar">
         <div>
+          <div class="shell-context">IMAGE ANNOTATION / 图片标注</div>
           <h1 id="pageTitle">创建标注项目</h1>
           <p id="pageSubtitle">导入数据后，系统会自动制定模型输入策略。</p>
         </div>
@@ -84,14 +89,14 @@
           <div><span>最大尺寸</span><strong id="statSize">—</strong></div>
           <div><span>粗标注</span><strong id="statCoarse">—</strong></div>
         </div>
-        <section class="dataset-io-pane" id="datasetIOPanel">
+        <section class="dataset-io-pane" id="datasetIOPanel" hidden>
           <div class="pane-head"><div><h2>数据集导入 / 导出</h2><p id="datasetIOSummary"></p></div><div class="io-actions"><button class="secondary" id="appendDataset">追加数据</button><button class="secondary" id="showDatasetHistory">导入历史</button><button class="secondary" id="showImportReport">查看导入报告</button></div></div>
           <pre id="importReport" class="io-report" hidden></pre>
           <div id="datasetHistory" class="io-report" hidden></div>
           <form id="datasetExportForm" class="dataset-export-form">
             <label>导出格式<select id="exportFormat" required></select></label>
             <label>标注版本<select id="exportPolicy"><option value="reviewed">仅人工确认（默认）</option><option value="reviewed_or_ai">人工确认 + AI 建议</option><option value="all_annotated">人工确认 + AI 建议 + 导入粗标注</option></select></label>
-            <label>数据划分（可多选）<select id="exportSplit" multiple size="3"><option value="" selected>全部</option><option value="train">train</option><option value="val">val</option><option value="test">test</option><option value="unspecified">未指定</option></select></label>
+            <label class="export-split-field"><span>数据划分（可多选）</span><div id="exportSplitPicker" class="export-split-picker" role="group" aria-label="数据划分（可多选）"><label><input type="checkbox" value="" checked>全部</label><label><input type="checkbox" value="train">train</label><label><input type="checkbox" value="val">val</label><label><input type="checkbox" value="test">test</label><label><input type="checkbox" value="unspecified">未指定</label></div><select id="exportSplit" multiple hidden aria-hidden="true" tabindex="-1"><option value="" selected>全部</option><option value="train">train</option><option value="val">val</option><option value="test">test</option><option value="unspecified">未指定</option></select></label>
             <label>图像文件<select id="exportImages"><option value="false">仅标注（附图像路径映射）</option><option value="true">包含图像副本</option></select></label>
             <button type="submit" class="primary" id="exportDataset">检查导出兼容性</button>
           </form>
@@ -257,9 +262,6 @@
   <script src="/assets/ai.js?v=3"></script>
   <script src="/assets/ai-image.js?v=3"></script>
   <script src="/assets/dataset-import.js?v=import-path-1"></script>
-  <script src="/assets/dataset-export.js?v=coco-segmentation-1"></script>
-  <script src="/assets/app.js?v=segmentation-2"></script>
-  <script src="/assets/dataset-import.js?v=format-center-1"></script>
-  <script src="/assets/dataset-export.js?v=format-center-1"></script>
+  <script src="/assets/dataset-export.js?v=split-picker-1"></script>
 </body>
 </html>

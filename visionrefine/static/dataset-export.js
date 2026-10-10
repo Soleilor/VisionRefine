@@ -12,6 +12,21 @@ function invalidateExport() {
   $("exportDownload").hidden = true;
 }
 
+function setExportSplits(values) {
+  const selected = new Set(values.length ? values : [""]);
+  [...$("exportSplit").options].forEach(option => option.selected = selected.has(option.value));
+  $("exportSplitPicker").querySelectorAll("input").forEach(input => { input.checked = selected.has(input.value); });
+}
+
+$("exportSplitPicker").onchange = event => {
+  const input = event.target.closest("input");
+  if (!input) return;
+  const checked = [...$("exportSplitPicker").querySelectorAll("input:checked")].map(item => item.value);
+  if (input.value === "" && input.checked) setExportSplits([""]);
+  else setExportSplits(checked.filter(Boolean));
+  invalidateExport();
+};
+
 function renderExportCenter() {
   if (!current) return;
   if (exportSession.projectId !== current.id) {
@@ -122,7 +137,7 @@ $("exportPreset").onchange=()=>{
   if($("exportPreset").value==="")return;
   const p=exportSession.presets[Number($("exportPreset").value)].options;
   $("exportFormat").value=p.formats[0];$("exportPolicy").value=p.policy;$("exportImages").value=String(p.include_images);
-  [...$("exportSplit").options].forEach(o=>o.selected=p.splits.length?p.splits.includes(o.value):o.value==="");
+  setExportSplits(p.splits);
   $("extraExportFormats").querySelectorAll("input").forEach(i=>i.checked=p.formats.slice(1).includes(i.dataset.exportFormat));invalidateExport();
 };
 $("datasetExportForm").addEventListener("change",invalidateExport);

@@ -111,10 +111,10 @@ VisionRefine 是一个本地优先的 AI 辅助多模态数据标注工具。它
 3. 查看自动生成的分辨率路由，配置兼容 OpenAI API 的视觉模型。
 4. 运行 AI 测试，或进入工作台进行人工校正。
 5. 保存人工检查版本；后续 AI 复核只生成建议，不覆盖人工结果。
-6. 选择一个或多个目标格式、数据划分和标注版本；检查兼容性并逐项确认转换，后台生成并下载标注包或含图像副本的数据集。
-7. 后续通过“追加数据”导入新批次或更新粗标注，不覆盖已有人工结果；“导入历史”记录每次操作。
+6. 需要交换数据时，通过 Dataset I/O 接口选择目标格式、数据划分和标注版本，检查兼容性后生成标注包。
+7. 后续可追加新批次或更新粗标注，不覆盖已有人工结果。
 
-详见 [Dataset I/O 使用说明与扩展接口](docs/dataset-io.md)。输入与输出格式可以不同；默认只导出人工确认结果。
+图片项目页当前采用标注优先的精简布局，暂时隐藏 Dataset I/O 管理面板，直接展示图像检查、流水线和标注工作台。导入导出后端、格式适配器和任务记录仍然保留，详见 [Dataset I/O 使用说明与扩展接口](docs/dataset-io.md)。输入与输出格式可以不同；默认只导出人工确认结果。
 
 新增格式的适用范围、原生包信任规则与开发模板见 [第一阶段格式中心](docs/format-center.md)。原生包默认重新导入为粗标注，只有明确勾选信任时才恢复审核状态；它不是完整项目备份。
 
@@ -129,6 +129,10 @@ VisionRefine 是一个本地优先的 AI 辅助多模态数据标注工具。它
 第二版增加“实例分割”工作区：用同一对象 ID 保存不同帧的轮廓，支持多段多边形、画笔、橡皮擦及遮挡状态。只标实际可见部分，完全遮挡后重新出现仍沿用原对象。关键帧之间的空缺保持未标注，逐帧审核后才能确认完成。
 
 视频索引、预览与抽帧在本机完成，使用 PyAV，不需要额外安装系统 FFmpeg。第三版通过独立模型服务提供视频理解与轮廓传播。设计、数据边界和测试步骤见 [视频第一版设计与验收](docs/video-v1.md)、[第二版人工实例分割](docs/video-v2.md) 和 [第三版 AI 辅助标注](docs/video-v3.md)。
+
+### 工作台界面
+
+图片与视频工作台共用统一的应用外壳、侧栏尺寸、顶部栏和工作台切换器。切换入口固定在品牌下方，当前工作台会明确高亮；桌面与窄屏使用同一套响应式规则。图片项目页优先呈现数据概览、图像浏览和人工标注，减少低频管理功能对标注流程的干扰。
 
 ## English
 
@@ -186,10 +190,14 @@ The workspace loads original-resolution regions on demand. Scroll to zoom and ri
 3. Review the generated resolution routes and configure an OpenAI-compatible vision model.
 4. Run an AI pilot or open the annotation workspace for human correction.
 5. Save the human-reviewed revision. Later AI passes remain suggestions and never overwrite it.
-6. Choose output formats, splits and revision policy; review compatibility, acknowledge conversions and download background-generated packages.
-7. Append later batches or coarse updates without overwriting human reviews; inspect the import operation history.
+6. When data exchange is needed, use the Dataset I/O APIs to choose formats, splits and revision policy, then run compatibility checks before generating packages.
+7. Append later batches or coarse updates without overwriting human reviews.
 
-See [Dataset I/O documentation](docs/dataset-io.md) for layouts, conversion limits and adapter development. Input and output formats are independent; exports default to human-reviewed data only.
+The image project page currently uses an annotation-first layout. Its Dataset I/O management panel is hidden so image inspection, pipeline status and annotation tools remain the primary surface. The import/export backend, format adapters and job records are still available. See [Dataset I/O documentation](docs/dataset-io.md) for data layouts, conversion limits and adapter development. Input and output formats are independent; exports default to human-reviewed data only.
+
+### Workspace interface
+
+Image and video annotation now share the same application shell, sidebar dimensions, header and workspace switcher. The active workspace is clearly highlighted, and both pages use the same responsive navigation rules. Image projects prioritize dataset inspection, browsing and human annotation instead of keeping low-frequency data-management controls permanently visible.
 
 ## Quick start
 
